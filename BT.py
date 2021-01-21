@@ -2,7 +2,7 @@
 """
 Created on Tue Jan 19 2021
 
-@author: Steven Rubio
+@author: S. Hiram Rubio
 Codigo que utiliza el algoritmo de 
 "backtraking" para resolver el problema 
 "n reinas en el tablero de ajedrez"

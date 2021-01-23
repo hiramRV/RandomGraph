@@ -13,46 +13,60 @@ Backtracking solution of the problem:
 """
     
 
-def random_graph():
+def random_graph(var0 =-1, var1 = -1,var2=-1, var3=-1):
     #Libs / librerias
     import matplotlib.pyplot as plt
     import pandas as pd
     from random import seed
     from random import randint
     
+    #Check and set vars / Chequeo y calculo de variables
+    if(var1==-1):           var1 = randint(0,222)
+    
+    if(var2==-1):           var2 = randint(0,4)
+    if(var2>4 or var2<0):   var2 = randint(0,4)
+    
     #seed random number generator / Semilla para número aleatorio
-    var1 = randint(0,222)
     seed(var1)
     #Files and Random read / Archivos y lectura random
     Files = ['BT04.csv','BT06.csv','BT08.csv','BT10.csv','BT12.csv']
-    var2 = randint(0,4)
     dfe = pd.read_csv("Data/"+Files[var2])
     
     #CSVData
     i = dfe['i']
     lbt = dfe['len']
     
+    #Check and set vars 2/ Chequeo y calculo de variables 2
+    if(var0==-1):                   var0 = 0
+    if(var0<0 or var0>max(i)-16):   var0 = randint(1,max(i)-16)
+    
     #Check for every case n>0 / Revisa si es un caso diferente del caso 0
-    var0 = 0
     if(max(i)>16):
         #We Select a random range of 16 iterations 
         #Seleccion de rango aleatorio de 16 iteraciones
-        var0 = randint(0,max(i)-16)
         i = i[var0:var0+16]
         lbt = lbt[var0:var0+16]
+    else: var0 = 0
+    
+    #Check and set vars 3/ Chequeo y calculo de variables 3
+    if(var3==-1):                   var3 = randint(1,2*int(-min(i)+max(i)))
+    if(var3<0):                     var3 = randint(1,2*int(-min(i)+max(i)))
     
     #Plot / Grafica
     fig, ax = plt.subplots(figsize= (8,6))
+    #Base nodes / Nodos base
     ax.scatter(dfe['i'],dfe['len'], c = '#707270', marker = 'o',edgecolor= 'k')
-            
+
+    #Node ID*
+    nodes = 0            
     #Random Nodes / Nodos aleatorios
-    var3 = randint(10,2*int(-min(i)+max(i)))
     for random in range(var3):
         #Seach 2 random nodes / Busqueda de dos Nodos 
         rv= dfe[dfe.i.eq(randint(min(i),max(i)))]
         rv2= dfe[dfe.i.eq(randint(min(i),max(i)))]
         rpnt = [int(rv['i']),int(rv['len'])]
         rpnt2 = [int(rv2['i']),int(rv2['len'])]
+        nodes = nodes+ rpnt[0]+rpnt[1]+rpnt2[0]+rpnt2[1]
         #Plot line / Plot linea
         ax.plot([rpnt[0],rpnt2[0]],[rpnt[1],rpnt2[1]], 'k')
     
@@ -67,18 +81,20 @@ def random_graph():
     Name = f"Imgs/BT_{max(dfe['len'])}QOB{var3}N.png"
     fig.savefig(Name)
     
-    return Name,var0,var1,var2,var3
+    return Name,var0,var1,var2,var3,nodes
 
 
-def generate_graph( FLAG = False, DELETE = False):
+def generate_graph(var0 =-1, var1 = -1,var2=-1, var3=-1, FLAG = False, DELETE = False, PRINT = False):
     #Libs / librerias
     from tweet0 import create_tweet_media
     import os
     
     skip = "\n"
     #Generate Graph and Data / Generando Grafo y data
-    Name,var0,var1,var2,var3 = random_graph()
-    text = f"Semilla: {var1} {skip}Archivo: {var2} {skip}Iteracion Inicial: {var0} {skip}Nodos: {var3}"
+    Name,var0,var1,var2,var3,nodes = random_graph(var0, var1, var2, var3)
+    text = f"Semilla: {var1} {skip}Archivo: {var2} {skip}Iteración Inicial: {var0} {skip}Nodos: {var3} {skip}ID*: {nodes}"
+    #Print graph data / Mostrar data del Grafo
+    if(PRINT): print(text)
     #Tweet
     if(FLAG): create_tweet_media([Name],text, myData =True)
     #Delete Img / Borrar Imagen
@@ -86,4 +102,4 @@ def generate_graph( FLAG = False, DELETE = False):
 
 #Run de code / Correr código
 if __name__ == "__main__":
-    generate_graph(DELETE = True)
+    generate_graph(DELETE = True, PRINT = True)

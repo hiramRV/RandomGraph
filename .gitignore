@@ -1,0 +1,5 @@
+
+*.pyc
+Data/Keys.csv
+Data/keysB.csv
+*.png

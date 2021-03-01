@@ -11,7 +11,9 @@ Code to generate random plots base on the
 Backtracking solution of the problem:
     n queens on board
 """
-    
+
+#Scheduler library
+from apscheduler.schedulers.background import BackgroundScheduler
 
 def random_graph(var0 =-1, var1 = -1,var2=-1, var3=-1):
     #Libs / librerias
@@ -21,7 +23,7 @@ def random_graph(var0 =-1, var1 = -1,var2=-1, var3=-1):
     from random import randint
     
     #Check and set vars / Chequeo y calculo de variables
-    if(var1==-1):           var1 = randint(0,222)
+    if(var1==-1):           var1 = randint(0,2222)
     
     if(var2==-1):           var2 = randint(0,4)
     if(var2>4 or var2<0):   var2 = randint(0,4)
@@ -37,7 +39,7 @@ def random_graph(var0 =-1, var1 = -1,var2=-1, var3=-1):
     lbt = dfe['len']
     
     #Check and set vars 2/ Chequeo y calculo de variables 2
-    if(var0==-1):                   var0 = 0
+    if(var0==-1):                   var0 = randint(1,max(i)-16)
     if(var0<0 or var0>max(i)-16):   var0 = randint(1,max(i)-16)
     
     #Check for every case n>0 / Revisa si es un caso diferente del caso 0
@@ -84,7 +86,7 @@ def random_graph(var0 =-1, var1 = -1,var2=-1, var3=-1):
     return Name,var0,var1,var2,var3,nodes
 
 
-def generate_graph(var0 =-1, var1 = -1,var2=-1, var3=-1, FLAG = False, DELETE = False, PRINT = False):
+def generate_graph(var0 =-1, var1 = -1,var2=-1, var3=-1, FLAG = True, DELETE = True, PRINT = True):
     #Libs / librerias
     from tweet0 import create_tweet_media
     import os
@@ -102,4 +104,11 @@ def generate_graph(var0 =-1, var1 = -1,var2=-1, var3=-1, FLAG = False, DELETE = 
 
 #Run de code / Correr código
 if __name__ == "__main__":
-    generate_graph(DELETE = True, PRINT = True)
+    #Scheduler / planificador
+    #Creation and job initialization / Creacion e inicio de trabajo
+    scheduler = BackgroundScheduler()
+    job = scheduler.add_job(generate_graph, 'interval', hours=2.22)
+    scheduler.start()
+    scheduler.print_jobs()
+    if(False):  scheduler.shutdown()
+    

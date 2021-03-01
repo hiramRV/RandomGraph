@@ -25,7 +25,7 @@ def create_tweet(tweet_text, myData = False):
     import tweepy
 
     #Leemos un CSV con las Keys para evitar tenerlas en el codigo
-    df = pandas.read_csv('Keys.csv')
+    df = pandas.read_csv('Data/KeysB.csv')
     CK = df['Key'][0]
     AT = df['Key'][1]
     CS = df['Secret'][0]
@@ -79,7 +79,7 @@ def create_tweet_media(filenames,tweet_text, myData = False):
     import tweepy
 
     #Leemos un CSV con las Keys para evitar tenerlas en el codigo
-    df = pandas.read_csv('Data/Keys.csv')
+    df = pandas.read_csv('Data/KeysB.csv')
     CK = df['Key'][0]
     AT = df['Key'][1]
     CS = df['Secret'][0]

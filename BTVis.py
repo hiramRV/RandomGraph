@@ -12,9 +12,6 @@ Backtracking solution of the problem:
     n queens on board
 """
 
-#Scheduler library
-from apscheduler.schedulers.background import BackgroundScheduler
-
 def random_graph(var0 =-1, var1 = -1,var2=-1, var3=-1):
     #Libs / librerias
     import matplotlib.pyplot as plt
@@ -39,8 +36,8 @@ def random_graph(var0 =-1, var1 = -1,var2=-1, var3=-1):
     lbt = dfe['len']
     
     #Check and set vars 2/ Chequeo y calculo de variables 2
-    if(var0==-1):                   var0 = randint(1,max(i)-16)
-    if(var0<0 or var0>max(i)-16):   var0 = randint(1,max(i)-16)
+    if(var0==-1):                   var0 = randint(1,max(i)-15)
+    if(var0<0 or var0>max(i)-15):   var0 = randint(1,max(i)-15)
     
     #Check for every case n>0 / Revisa si es un caso diferente del caso 0
     if(max(i)>16):
@@ -82,6 +79,8 @@ def random_graph(var0 =-1, var1 = -1,var2=-1, var3=-1):
     #Save / Guardando Imagen
     Name = f"Imgs/BT_{max(dfe['len'])}QOB{var3}N.png"
     fig.savefig(Name)
+    # / Cerrar imagen para evitar que se muestre
+    plt.close(fig)
     
     return Name,var0,var1,var2,var3,nodes
 
@@ -104,11 +103,14 @@ def generate_graph(var0 =-1, var1 = -1,var2=-1, var3=-1, FLAG = True, DELETE = T
 
 #Run de code / Correr código
 if __name__ == "__main__":
+    #Libs / librerias
+    from apscheduler.schedulers.blocking import BlockingScheduler
+    
     #Scheduler / planificador
     #Creation and job initialization / Creacion e inicio de trabajo
-    scheduler = BackgroundScheduler()
-    job = scheduler.add_job(generate_graph, 'interval', hours=2.22)
-    scheduler.start()
+    scheduler = BlockingScheduler()
+    job = scheduler.add_job(lambda: generate_graph(DELETE = False), 'interval', hours=2.22)
+    scheduler.start() 
     scheduler.print_jobs()
     if(False):  scheduler.shutdown()
     

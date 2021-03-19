@@ -7,3 +7,7 @@ Trabajo en progreso.
 # Objetivo
 
 # Espacio (?) 
+
+| Variable  | Posibles valores | Descripcion                                                           |
+| --------- | ---------------- | --------------------------------------------------------------------- |
+|           |                  | Especifica qual foto editar se o tweet tiver mais de uma foto válida. |

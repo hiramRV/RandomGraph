@@ -2,11 +2,13 @@
 Repositorio creado para generar y difundir diferentes grafos aleatorios. 
 Trabajo en progreso. 
 
-# Origen
+## Origen
+La idea vino a mi mientras estudiaba el algoritmo de backtracking, específicamente el rompecabezas de [“8 damas en el tablero”](https://es.wikipedia.org/wiki/Problema_de_las_ocho_reinas). Al programar y resolverlo noté que la forma en que la solución se construía no tenía un patrón, por lo que decidí **explorar** y **explotar** su comportamiento.
 
-# Objetivo
+## Objetivo
+Documentar mediante una página de [twitter](https://twitter.com/bot_rv) el comportamiento aleatorio de este rompecabezas de una forma diferente. 
 
-# Espacio (?) 
+## Espacio (?) 
 
 | Variable  | Posibles valores | Descripcion                                                           |
 | --------- | ---------------- | --------------------------------------------------------------------- |

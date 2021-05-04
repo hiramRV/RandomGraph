@@ -16,12 +16,10 @@ def random_graph(var0 =-1, var1 = -1,var2=-1, var3=-1):
     #Libs / librerias
     import matplotlib.pyplot as plt
     import pandas as pd
-    from random import seed
-    from random import randint
+    from random import seed, randint
     
     #Check and set vars / Chequeo y calculo de variables
-    if(var1==-1):           var1 = randint(0,2222)
-    
+    if(var1==-1):           var1 = randint(0,222222)
     if(var2==-1):           var2 = randint(0,4)
     if(var2>4 or var2<0):   var2 = randint(0,4)
     
@@ -53,21 +51,25 @@ def random_graph(var0 =-1, var1 = -1,var2=-1, var3=-1):
     
     #Plot / Grafica
     fig, ax = plt.subplots(figsize= (8,6))
-    #Base nodes / Nodos base
-    ax.scatter(dfe['i'],dfe['len'], c = '#707270', marker = 'o',edgecolor= 'k')
 
     #Node ID*
     nodes = 0            
     #Random Nodes / Nodos aleatorios
     for random in range(var3):
         #Seach 2 random nodes / Busqueda de dos Nodos 
-        rv= dfe[dfe.i.eq(randint(min(i),max(i)))]
-        rv2= dfe[dfe.i.eq(randint(min(i),max(i)))]
+        rv= dfe[dfe.i.eq(randint(min(i),max(i)))] 
+        #Ensure different points / Asegurar diferentes puntos
+        rv2 = rv
+        while(rv2.equals(rv)):
+            rv2= dfe[dfe.i.eq(randint(min(i),max(i)))]
         rpnt = [int(rv['i']),int(rv['len'])]
         rpnt2 = [int(rv2['i']),int(rv2['len'])]
+        #Node ID construction / Construccion del ID 
         nodes = nodes+ rpnt[0]+rpnt[1]+rpnt2[0]+rpnt2[1]
         #Plot line / Plot linea
         ax.plot([rpnt[0],rpnt2[0]],[rpnt[1],rpnt2[1]], 'k')
+        #nodes / Nodos 
+        ax.scatter([rpnt[0],rpnt2[0]],[rpnt[1],rpnt2[1]], c = '#707270', marker = 'o',edgecolor= 'k')
     
     #Plot text and axis / Texto y ejes
     ax.set_title(f"Nodes of: Backtracking {max(dfe['len'])} Queens on board (cont = {var3})")
@@ -105,7 +107,7 @@ def generate_graph(var0 =-1, var1 = -1,var2=-1, var3=-1, FLAG = True, DELETE = T
 if __name__ == "__main__":
     #Libs / librerias
     from apscheduler.schedulers.blocking import BlockingScheduler
-    
+    generate_graph(FLAG = True, DELETE = False)
     #Scheduler / planificador
     #Creation and job initialization / Creacion e inicio de trabajo
     scheduler = BlockingScheduler()
@@ -113,4 +115,3 @@ if __name__ == "__main__":
     scheduler.start() 
     scheduler.print_jobs()
     if(False):  scheduler.shutdown()
-    

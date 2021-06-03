@@ -115,4 +115,3 @@ def create_tweet_media(filenames,tweet_text, myData = False):
      
     #Creando tweet con media_ids
     api.update_status(media_ids=media_ids, status=tweet_text)
-

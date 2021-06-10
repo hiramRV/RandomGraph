@@ -56,7 +56,7 @@ def random_graph(var0 =-1, var1 = -1,var2=-1, var3=-1):
     if(var3<0):                     var3 = randint(1,2*int(-min(i)+max(i)))
     
     #Plot / Grafica
-    fig, ax = plt.subplots(figsize= (8,6))
+    fig, ax = plt.subplots(figsize= (8,8))
 
     #Node ID*
     nodes = 0    
@@ -155,7 +155,7 @@ def paint_trig(lines, Name, PRINT = False):
     i_points = inter_points(linesN,ax)
     
     #Paleta de colores parcial
-    colors = ['#FF5733','r','c','y','m','g','b']   
+    colors = ['#FF5733','#C7005D','#13F3D5','#FAE317','#E017FD','#83EC0A','#0677F9']   
     #Contador
     i = 0
     #Buscamos triangulos en base a los puntos de intersección y
@@ -190,7 +190,7 @@ def paint_trig(lines, Name, PRINT = False):
                     i = i+1
                     
     #Plot text and axis / Texto y ejes
-    ax.set_title(f"Found Triangles")
+    ax.set_title(f"{i} Found Triangles, {len(i_points)} Intersections")
     ax.set_ylabel('Queens on board')
     ax.set_xlabel('Iterations')
     #ax.set_xlim(xmin = min(i)-0.5, xmax=max(i)+0.5)
@@ -201,8 +201,8 @@ def paint_trig(lines, Name, PRINT = False):
     if(i!= 0): fig.savefig(NameP)
     # / Cerrar imagen para evitar que se muestre
     #plt.close(fig)
-    if(PRINT):  print(f"Triangulos: {i}") 
-    return NameP, i
+    if(PRINT):  print(f"Intersecciones: {len(i_points)}, Triangulos: {i}") 
+    return NameP, i, len(i_points)
 
 
 def generate_graph(var0 =-1, var1 = -1,var2=-1, var3=-1, FLAG = True, DELETE = True, PRINT = True):
@@ -214,14 +214,14 @@ def generate_graph(var0 =-1, var1 = -1,var2=-1, var3=-1, FLAG = True, DELETE = T
     skip = "\n"
     #Generate Graph and Data / Generando Grafo y data
     Name,var0,var1,var2,var3,nodes,lines = random_graph(var0, var1, var2, var3)
-    Name2, trigs = paint_trig(lines, Name )
-    text = f"Semilla: {var1} {skip}Archivo: {var2} {skip}Iteración Inicial: {var0} {skip}Nodos: {var3} {skip}ID*: {nodes} {skip}Triangulos: {trigs}"
+    Name2, trigs, i_points = paint_trig(lines, Name[:-4] )
+    text = f"Semilla: {var1} {skip}Archivo: {var2} {skip}Iteración Inicial: {var0} {skip}Nodos: {var3} {skip}ID*: {nodes} {skip}Intersecciones: {i_points} {skip}Triangulos: {trigs}"
     #Print graph data / Mostrar data del Grafo
-    if(PRINT): print(text)
+    if(PRINT): print(text) ; print(lines)
     #Tweet
     if(FLAG): 
         if(trigs!=0):   create_tweet_media([Name, Name2],text, myData =True)
-        else:           create_tweet_media([Name, Name2],text, myData =True)
+        else:           create_tweet_media([Name],text, myData =True)
     #Delete Img / Borrar Imagen
     if(DELETE): 
         os.remove(Name)
@@ -229,4 +229,4 @@ def generate_graph(var0 =-1, var1 = -1,var2=-1, var3=-1, FLAG = True, DELETE = T
 
 #Test
 if __name__ == "__main__":
-    generate_graph(FLAG = False, DELETE = False)
+    generate_graph(FLAG = True, DELETE = False)

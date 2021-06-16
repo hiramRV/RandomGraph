@@ -1,3 +1,5 @@
+**_English version, [Here](./README2.md)._**
+
 # RandomGraph
 Repositorio creado para generar y difundir diferentes grafos aleatorios.  
 

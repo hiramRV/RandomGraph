@@ -20,12 +20,23 @@ def list_to_lines(listP):
     return Newlist 
 
 #Funcion para plotear linea
-def plot_line(ax, ln):
+def plot_line(ax, ln,color):
     x, y = ln.xy
-    ax.plot(x, y, color='k', alpha=0.3, linewidth=2, solid_capstyle='round', zorder=0)
+    ax.plot(x, y, color=color, alpha=0.3, linewidth=2, solid_capstyle='round', zorder=0)
+
+#Funcion para obtener la pendiente de una linea    
+def m_line(line):
+    y = line.xy[1]
+    dy = y[0]-y[1]
+    x = line.xy[0]
+    dx = x[0]-x[1]
+    if(dx==0.0):
+        return dx/dy    
+    else:
+        return dy/dx
     
 #Funcion para obtener los puntos de interseccion    
-def inter_points(linesN, ax, PRINT = True, POINTS = False):
+def inter_points(linesN, ax, PRINT = True, POINTS = True):
     #Puntos de interseccion
     i_points = []
     #Genero todos los pares de líneas para buscar intercepciones.     
@@ -46,54 +57,125 @@ def inter_points(linesN, ax, PRINT = True, POINTS = False):
     return i_points
 
 #Funcion para buscar y pintar triangulos
-def paint_trig(lines, Name, PLOT0 = True, PRINT = True ):
+def paint_trig2(lines, Name, PLOT0 = True, PLOT1 = False, PRINT = False):
     #Plot / Grafica
-    fig, ax = plt.subplots(figsize= (8,8))
+    fig, ax = plt.subplots(figsize= (10,8))
     #Conversion a lineas 
-    linesN = list_to_lines(lines)
-    
-    #Ploteo de las lineas.  
+    global linesN
+    linesN = list_to_lines(lines)  
     if(PLOT0):   
         for element in linesN:   
-            plot_line(ax, element)
+            plot_line(ax, element,color='k')
     
     #Todos los puntos de interseccion    
     i_points = inter_points(linesN,ax)
-    
     #Paleta de colores parcial
-    colors = ['#FF5733','r','c','y','m','g','b']   
+    from random import randint
+    varC = randint(0,4)
+    if(varC==0):    colors = ['#FF5733','#C7005D','#13F3D5','#FAE317','#E017FD','#83EC0A','#0677F9'] 
+    if(varC==1):    colors = ['#4CAF50','#00E676','#00C853','#E8F5E9'] 
+    if(varC==2):    colors = ['#FFF9C4','#FFF176','#FFEB3B','#FBC02D','#F57F17','#FFFF00']
+    if(varC==3):    colors = ['#00B8D4','#00E5FF','#18FFFF','#84FFFF','#00838F']
+    if(varC==4):    colors = ['#F8BBD0','#F48FB1','#FCE4EC','#F06292','#D81B60','#C2185B','#880E4F']
+    
+    #Contador
+    i = 0
+    global Polyg
     #Buscamos triangulos en base a los puntos de intersección y
     #a las líneas utilizadas
     if(len(i_points) >= 3):
         if(PRINT): print(f"------------Buscando triangulos-------------")
-        i = 0
         #Poligonos usados
         Polyg = []
+        global Polyg_l
         #Hacemos todas las permutaciones de grupos de 3
-        for group in itertools.permutations(i_points, 3):
+        for group in itertools.combinations(i_points, 3):
             #Lineas usadas
             Polyg_l = []
+            global pair
             #Buscamos los pares de puntos
             for pair in itertools.combinations(group , 2):
-                #Verificamos todas las lineas
-                for line in linesN:
-                    #Definimos tolerancia
-                    d = 1e-14
-                    #Buscamos lineas que tengan un intercepto y pasen cerca de otro punto. 
-                    if( ( line.intersects(pair[0]) or (line.distance(pair[0]))<d) and (line.intersects(pair[1]) or (line.distance(pair[1])<d) )):
-                       if (line not in Polyg_l):
-                           Polyg_l.append(line)
-            
-            #Si las permutaciones son correctas, verificamos si el triangulo
-            #esta contenido en otro ya dibujado, sino se agrega
-            if(len(Polyg_l)==3):
-                polygon = Polygon(group)
-                if( (len(Polyg) == 0) or all( (e.contains(polygon) == False) for (e) in Polyg)):
-                    patch = PolygonPatch(polygon, facecolor=colors[len(Polyg)%7], edgecolor='k', alpha=0.3, zorder=2)
-                    ax.add_patch(patch)
-                    Polyg.append(polygon)
-                    i = i+1
+                #Booleano
+                Valid = False
+                #Creamos una linea
+                lineInter0 = LineString((pair[0],pair[1]))
+                lineInter1 = LineString((pair[1],pair[0]))
+                
+                if (lineInter0 in linesN) and (Valid ==False): 
+                    if(PLOT1): plot_line(ax, lineInter0, color='g')
+                    lineInter = lineInter0
+                    Valid = True
+                    if (lineInter not in Polyg_l): Polyg_l.append(lineInter)
+                    if(PRINT): print("Caso1")
                     
+                if (lineInter1 in linesN) and (Valid ==False): 
+                    if(PLOT1): plot_line(ax, lineInter1, color='y')
+                    lineInter = lineInter1
+                    Valid = True
+                    if (lineInter not in Polyg_l): Polyg_l.append(lineInter)
+                    if(PRINT): print("Caso2")
+
+
+                if(Valid ==False):    
+                    #Si las lineas no se contienen perfectamente, buscamos de forma alternativa con
+                    #la pendiente y la funcion touches
+                    for line in linesN:
+                        #Definimos tolerancia
+                        d = 1e-10
+                        if(line.touches(lineInter0)) and (Valid ==False):
+                            m1 = m_line(line)
+                            m2 = m_line(lineInter0)
+                            if( abs(m1-m2) <d) and ( (m1>0 and m2>0) or (m1<0 and m2<0)) : 
+                                if(PRINT): print(f"Caso3 {m1}, {m2}")
+                                lineInter = lineInter0
+                                Valid= True
+                                if(PLOT1): plot_line(ax, lineInter, color='r')
+                                if (lineInter not in Polyg_l): Polyg_l.append(lineInter)
+                                
+                        elif(line.contains(lineInter0)) and (Valid ==False):
+                            lineInter = lineInter0
+                            if(PRINT): print(f"Caso3.2")
+                            Valid= True
+                            if(PLOT1): plot_line(ax, lineInter, color='r')
+                            if (lineInter not in Polyg_l): Polyg_l.append(lineInter)
+                                
+                            
+                        elif(line.touches(lineInter1)) and (Valid ==False):
+                            m1 = m_line(line)
+                            m2 = m_line(lineInter1)
+                            if ( abs(m1-m2) <d) and ( (m1>0 and m2>0) or (m1<0 and m2<0)): 
+                                if(PRINT): print(f"Caso4 {m1}, {m2}")
+                                lineInter = lineInter1
+                                # print("Valid****")
+                                Valid= True
+                                if(PLOT1): plot_line(ax, lineInter, color='r')
+                                if (lineInter not in Polyg_l): Polyg_l.append(lineInter)
+                                
+                        elif(line.contains(lineInter1)) and (Valid ==False):
+                            if(PRINT): print(f"Caso4.2")
+                            lineInter = lineInter1
+                            Valid= True
+                            if(PLOT1): plot_line(ax, lineInter, color='r')
+                            if (lineInter not in Polyg_l): Polyg_l.append(lineInter)
+                                
+            #Si las permutaciones son correctas, verificamos si el triangulo
+            #esta contenido en otro ya dibujado, sino se agreg
+            if(len(Polyg_l)==3):
+                if( abs(m_line(Polyg_l[0]) - m_line(Polyg_l[1]))<1e-5 or abs(m_line(Polyg_l[0]) - m_line(Polyg_l[2]))<1e-5): 
+                    if(PRINT): print("\nLineas paralelas")
+                    if(PRINT): print(m_line(Polyg_l[0]))
+                    if(PRINT): print(m_line(Polyg_l[1]))
+                    if(PRINT): print(m_line(Polyg_l[2]))
+                    pass
+                else:
+                    polygon = Polygon(group)
+                    if( (len(Polyg) == 0) or all( (e.contains(polygon) == False) for (e) in Polyg)) and (True):
+                        patch = PolygonPatch(polygon, facecolor=colors[len(Polyg)%len(colors)], edgecolor='k', alpha=0.3, zorder=2)
+                        ax.add_patch(patch)
+                        Polyg.append(polygon)
+                        i = i+1
+            
+
     #Plot text and axis / Texto y ejes
     ax.set_title(f"Found Triangles")
     ax.set_ylabel('Queens on board')
@@ -107,22 +189,15 @@ def paint_trig(lines, Name, PLOT0 = True, PRINT = True ):
     # / Cerrar imagen para evitar que se muestre
     #plt.close(fig)
                          
-    if(PRINT):  print(f"Triangulos: {i}") 
+    if(True):  print(f"Triangulos: {i}") 
     return NameP, i
 #-----------------------------------------------------------
 
-                     
-# print(f"Triangulos: {i}")   
-#lines = [([125, 111], [5, 3]), ([126, 111], [5, 3]), ([111, 124], [3, 4]), ([115, 125], [5, 5]), ([122, 121], [4, 3]), ([126, 122], [5, 4]), ([113, 124], [5, 4]), ([126, 125], [5, 5])]
-#lines = [([437540, 437543], [7, 9]), ([437545, 437536], [10, 10]), ([437541, 437543], [8, 9]), ([437543, 437530], [9, 11]), ([437537, 437530], [10, 11]), ([437530, 437541], [11, 8])]
-#lines = [([44, 35], [5, 4]), ([36, 40], [5, 2]), ([37, 29], [5, 5]), ([31, 38], [3, 6]), ([44, 31], [5, 3]), ([37, 34], [5, 5]), ([31, 33], [3, 5]), ([35, 29], [4, 5])]
-#lines = [([31429, 31427], [6, 7]), ([31437, 31424], [7, 6]), ([31430, 31423], [6, 7]), ([31423, 31434], [7, 4]), ([31430, 31434], [6, 4]), ([31433, 31423], [3, 7]), ([31430, 31427], [6, 7]), ([31426, 31423], [8, 7]), ([31429, 31432], [6, 8]), ([31434, 31422], [4, 6]), ([31424, 31435], [6, 5]), ([31437, 31431], [7, 7]), ([31433, 31428], [3, 5]), ([31436, 31429], [6, 6]), ([31429, 31430], [6, 6]), ([31434, 31427], [4, 7]), ([31422, 31436], [6, 6]), ([31431, 31423], [7, 7])]
-#lines = [([1718, 1725], [7, 6]), ([1732, 1728], [6, 5]), ([1731, 1729], [5, 6]), ([1731, 1724], [5, 5]), ([1727, 1719], [4, 2]), ([1722, 1733], [5, 7]), ([1719, 1731], [2, 5]), ([1733, 1722], [7, 5]), ([1721, 1724], [4, 5]), ([1729, 1732], [6, 6])]
-#lines = [([721991, 721994], [9, 6]), ([721998, 721990], [10, 8]), ([721995, 721996], [7, 8]), ([721998, 721990], [10, 8]), ([721991, 721999], [9, 7]), ([721991, 721996], [9, 8]), ([721990, 721997], [8, 9]), ([721997, 721999], [9, 7]), ([721990, 721986], [8, 8]), ([721998, 721992], [10, 10]), ([721994, 721993], [6, 11]), ([721988, 721999], [9, 7]), ([721995, 721988], [7, 9]), ([721989, 721995], [10, 7]), ([721987, 721993], [9, 11]), ([721986, 721993], [8, 11]), ([721994, 721988], [6, 9])]
-#[([1280, 1275], [8, 7]), ([1288, 1275], [6, 7]), ([1280, 1279], [8, 7]), ([1277, 1284], [5, 7]), ([1276, 1285], [8, 3])]
-#Name = f"Imgs/BT_Random.png"
-#Name2, polis = paint_trig(lines, Name )
 if __name__ == "__main__":
-    lines = [([31429, 31427], [6, 7]), ([31437, 31424], [7, 6]), ([31430, 31423], [6, 7]), ([31423, 31434], [7, 4]), ([31430, 31434], [6, 4]), ([31433, 31423], [3, 7]), ([31430, 31427], [6, 7]), ([31426, 31423], [8, 7]), ([31429, 31432], [6, 8]), ([31434, 31422], [4, 6]), ([31424, 31435], [6, 5]), ([31437, 31431], [7, 7]), ([31433, 31428], [3, 5]), ([31436, 31429], [6, 6]), ([31429, 31430], [6, 6]), ([31434, 31427], [4, 7]), ([31422, 31436], [6, 6]), ([31431, 31423], [7, 7])]
-    Name = f"Imgs/TestP.png"
-    Name2, polis = paint_trig(lines, Name )
+    # lines = [([295161, 295169], [8, 8]), ([295164, 295162], [6, 9]), ([295167, 295164], [9, 6])]
+    lines = [([732867, 732860], [8, 12]), ([732865, 732859], [9, 11]), ([732864, 732869], [8, 9]), ([732864, 732867], [8, 8]), ([732869, 732862], [9, 6]), ([732859, 732871], [11, 10]), ([732857, 732861], [9, 9]), ([732867, 732871], [8, 10]), ([732868, 732858], [8, 10]), ([732869, 732866], [9, 9]), ([732868, 732870], [8, 9])]
+    # lines = [([115749, 115742], [9, 8]), ([115754, 115748], [6, 9]), ([115756, 115752], [8, 10]), ([115743, 115753], [9, 5]), ([115752, 115749], [10, 9]), ([115754, 115748], [6, 9]), ([115744, 115751], [10, 9]), ([115742, 115747], [8, 8]), ([115754, 115747], [6, 8])]
+    # lines = [([31429, 31427], [6, 7]), ([31437, 31424], [7, 6]), ([31430, 31423], [6, 7]), ([31423, 31434], [7, 4]), ([31430, 31434], [6, 4]), ([31433, 31423], [3, 7]), ([31430, 31427], [6, 7]), ([31426, 31423], [8, 7]), ([31429, 31432], [6, 8]), ([31434, 31422], [4, 6]), ([31424, 31435], [6, 5]), ([31437, 31431], [7, 7]), ([31433, 31428], [3, 5]), ([31436, 31429], [6, 6]), ([31429, 31430], [6, 6]), ([31434, 31427], [4, 7]), ([31422, 31436], [6, 6]), ([31431, 31423], [7, 7])]
+    # lines = [([576997, 576989], [10, 9]), ([576992, 576997], [5, 10]), ([576996, 576998], [9, 11]), ([576995, 577002], [8, 7]), ([576995, 576996], [8, 9]), ([576995, 576997], [8, 10]), ([576993, 576992], [6, 5]), ([576993, 577001], [6, 8]), ([577003, 576993], [8, 6]), ([576996, 577002], [9, 7]), ([576998, 576996], [11, 9]), ([576996, 577001], [9, 8]), ([576993, 576998], [6, 11]), ([577003, 576990], [8, 10]), ([576998, 576993], [11, 6]), ([576991, 576992], [4, 5]), ([576990, 576989], [10, 9]), ([577002, 576995], [7, 8]), ([576997, 577004], [10, 9])]
+    Name = f"TestP"
+    Name2, polis = paint_trig2(lines, Name )
